@@ -40,6 +40,7 @@ func main() {
 	var updates tgbotapi.UpdatesChannel
 
 	if *webhookBaseURL != "" {
+		log.Println("Starting Listener On..", *webhookBaseURL)
 		err := startWithWebHook(bot, *webhookBaseURL)
 		if err != nil {
 			log.Fatal(err)
@@ -68,7 +69,6 @@ func main() {
 	})
 
 	for update := range updates {
-		fmt.Println(10)
 		if update.Message == nil {
 			continue
 		}
@@ -76,12 +76,24 @@ func main() {
 			break
 		}
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		// Check for spammers
+		go func(update tgbotapi.Update) {
+			if update.Message.NewChatMembers == nil {
+				return
+			}
+			for _, user := range *update.Message.NewChatMembers {
+				if checkIfSpammer(user.UserName) {
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
+					bot.KickChatMember(tgbotapi.KickChatMemberConfig{
+						ChatMemberConfig: tgbotapi.ChatMemberConfig{
+							UserID: user.ID,
+							ChatID: update.Message.Chat.ID,
+						},
+					})
+				}
+			}
+		}(update)
 
-		bot.Send(msg)
 	}
 }
 
@@ -123,6 +135,13 @@ func startServer(port string) (*http.Server, error) {
 	go server.Serve(listener)
 	return server, nil
 
+}
+
+func checkIfSpammer(username string) bool {
+	if len(username) > 20 {
+		return true
+	}
+	return false
 }
 
 func exitGracefully(handleShutdown func(chan bool)) {
