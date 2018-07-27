@@ -2,7 +2,9 @@
 
 
 # How to run ?
-Make sure you have working golang installation
+Make sure you have working golang installation, Install https://github.com/golang/dep
+and run a `dep ensure`
+then,
 
 ` go run main.go <flags> `
 ```
