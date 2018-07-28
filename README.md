@@ -1,10 +1,14 @@
 # hashnodebot
 
-# How to run ?
 
-` hasnodebot <flags> `
+# How to run ?
+Make sure you have working golang installation, Install https://github.com/golang/dep
+and run a `dep ensure`
+then,
+
+` go run main.go <flags> `
 ```
-Usage of ./hashnodebot:
+Usage:
   -debug
     	turn debug bode on/off (default true)
   -port string
