@@ -18,11 +18,12 @@ func main() {
 	var err error
 	var server *http.Server
 	var stopServer = false
-
+	// Declare flags
 	botToken := flag.String("token", "", "telegram bot token")
 	debug := flag.Bool("debug", true, "turn debug bode on/off")
 	webhookBaseURL := flag.String("webhookBaseURL", "", "Base URL for webhook")
 	port := flag.String("port", "80", "port to listen")
+	charlength := flag.Int("charlength", 20, "max length for username/password")
 	flag.Parse()
 
 	if *botToken == "" {
@@ -39,6 +40,7 @@ func main() {
 
 	var updates tgbotapi.UpdatesChannel
 
+	// If a webhook url is given start the bot in webhook mode
 	if *webhookBaseURL != "" {
 		log.Println("Starting Listener On..", *webhookBaseURL)
 		err := startWithWebHook(bot, *webhookBaseURL)
@@ -60,6 +62,7 @@ func main() {
 
 	}
 
+	// Exit gracefully on interupt
 	go exitGracefully(func(done chan bool) {
 		if server != nil {
 			server.Shutdown(context.Background())
@@ -82,7 +85,7 @@ func main() {
 				return
 			}
 			for _, user := range *update.Message.NewChatMembers {
-				if checkIfSpammer(user.UserName) {
+				if checkIfSpammer(user.UserName, user.FirstName+user.LastName, *charlength) {
 
 					bot.KickChatMember(tgbotapi.KickChatMemberConfig{
 						ChatMemberConfig: tgbotapi.ChatMemberConfig{
@@ -137,8 +140,8 @@ func startServer(port string) (*http.Server, error) {
 
 }
 
-func checkIfSpammer(username string) bool {
-	if len(username) > 20 {
+func checkIfSpammer(username, name string, length int) bool {
+	if len(username) > length || len(name) > length {
 		return true
 	}
 	return false
