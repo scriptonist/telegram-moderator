@@ -1,7 +1,9 @@
-# hashnodebot
+# Telegram Moderator Bot
 
+## What it does?
+Kicks out users from Telegram channels whose name/username match a particular pattern
 
-# How to run ?
+## How to run ?
 Make sure you have working golang installation, Install https://github.com/golang/dep
 and run a `dep ensure`
 then,
