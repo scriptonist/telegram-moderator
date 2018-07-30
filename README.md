@@ -12,7 +12,7 @@ then,
 ```
 Usage:
   -charlength int
-    	max length for username/password (default 20)
+    	max length for username/name (default 20)
   -debug
     	turn debug bode on/off (default true)
   -port string
